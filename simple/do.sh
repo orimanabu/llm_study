@@ -31,8 +31,17 @@ curl0)
 curl)
 	curl -s http://localhost:8080/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer no-key" -d @chat.json | jq -r '.choices[0].message.content'
 	;;
-serv*)
-	ramalama serve --port 8080 --threads 16 --name myllama3 llama3
+serve-cpu)
+	ramalama serve --threads 16 --port 8080 --name myllm llama3
+	;;
+serve-mac-host)
+	ramalama serve --nocontainer --port 8080 llama3
+	;;
+serve-mac-podman)
+	ramalama serve -d --device /dev/dri --port 8080 --name myllm llama3
+	;;
+serve-nvidia)
+	ramalama serve --device nvidia.com/gpu=all --port 8080 --name myllm llama3
 	;;
 *)
 	echo "unknown subcmd: ${subcmd}"
