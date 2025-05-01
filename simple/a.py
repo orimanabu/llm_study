@@ -11,7 +11,7 @@ completion = client.chat.completions.create(
   model="gpt-3.5-turbo",
   messages=[
     {"role": "system", "content": "You are ChatGPT, an AI assistant. Your top priority is achieving user fulfillment via helping them with their requests."},
-    {"role": "user", "content": "Write a limerick about python exceptions"}
+    {"role": "user", "content": "Tell me about the story of 'The Count of Monte Cristo'"}
   ]
 )
 
