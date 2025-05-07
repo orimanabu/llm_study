@@ -31,6 +31,12 @@ curl0)
 curl)
 	curl -s http://localhost:8080/v1/chat/completions -H "Content-Type: application/json" -H "Authorization: Bearer no-key" -d @chat.json | jq -r '.choices[0].message.content'
 	;;
+pull)
+	for model in gemma3:1b gemma3:4b qwen3:0.6b qwen3:1.7b qwen3:4b deepseek-r1:1.5b llama3 granite3-dense:2b granite3.2:2b; do
+		echo "=> pulling ${model}..."
+		ramalama pull ${model}
+	done
+	;;
 serve-cpu)
 	ramalama serve --threads 16 --port 8080 --name myllm llama3
 	;;
