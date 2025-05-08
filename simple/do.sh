@@ -89,7 +89,7 @@ case ${subcmd} in
 prepare)
 	python -m venv .venv
 	.venv/bin/python3 -m pip install --upgrade pip
-	.venv/bin/python3 -m pip install openai
+	.venv/bin/python3 -m pip install openai ramalama
 	#source .venv/bin/activate
 	;;
 curl0)

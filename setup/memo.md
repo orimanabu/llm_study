@@ -90,3 +90,40 @@ dnf download --source kernel
 cd ~/rpmbuild/
 sudo dnf build-dep SPECS/kernel.spec
 ```
+
+``` shell
+podman run --rm --label ai.ramalama.model=llama3:8b --label ai.ramalama.engine=podman --label ai.ramalama.runtime=llama.cpp --label ai.ramalama.command=bench --device /dev/dri --device nvidia.com/gpu=all -e CUDA_VISIBLE_DEVICES=0 --network none --runtime /usr/bin/nvidia-container-runtime --security-opt=label=disable --cap-drop=all --security-opt=no-new-privileges --pull newer -t -i --label ai.ramalama --name ramalama_mzsSlEecKK --env=HOME=/tmp --init --label ai.ramalama.model=llama3:8b --label ai.ramalama.engine=podman --label ai.ramalama.runtime=llama.cpp --label ai.ramalama.command=bench --mount=type=bind,src=/home/ec2-user/.local/share/ramalama/store/ollama/llama3/llama3/blobs/sha256-6a0746a1ec1aef3e7ec53868f220ff6e389f6f8ef87a01d77c96807de94ca2aa,destination=/mnt/models/model.file,ro --mount=type=bind,src=/home/ec2-user/.local/share/ramalama/store/ollama/llama3/llama3/snapshots/sha256-6a0746a1ec1aef3e7ec53868f220ff6e389f6f8ef87a01d77c96807de94ca2aa/chat_template_converted,destination=/mnt/models/chat_template.file,ro quay.io/ramalama/cuda:0.8 llama-bench -ngl 999 --threads 96 -m /mnt/models/model.file
+```
+
+``` shell
+podman run --rm --device /dev/dri --device nvidia.com/gpu=all -e CUDA_VISIBLE_DEVICES=0 --runtime /usr/bin/nvidia-container-runtime --security-opt=label=disable -t -i --name ramalama_bench --env=HOME=/tmp --init --mount=type=bind,src=/home/ec2-user/.local/share/ramalama/store/ollama/llama3/llama3/blobs/sha256-6a0746a1ec1aef3e7ec53868f220ff6e389f6f8ef87a01d77c96807de94ca2aa,destination=/mnt/models/model.file,ro --mount=type=bind,src=/home/ec2-user/.local/share/ramalama/store/ollama/llama3/llama3/snapshots/sha256-6a0746a1ec1aef3e7ec53868f220ff6e389f6f8ef87a01d77c96807de94ca2aa/chat_template_converted,destination=/mnt/models/chat_template.file,ro quay.io/ramalama/cuda:0.8 llama-bench -ngl 999 --threads 96 -m /mnt/models/model.file -o md
+```
+
+``` shell
+podman run --rm --device /dev/dri --device nvidia.com/gpu=all -e CUDA_VISIBLE_DEVICES=0 --runtime /usr/bin/nvidia-container-runtime --security-opt=label=disable -t -i --name ramalama_bench --env=HOME=/tmp --init --mount=type=bind,src=/home/ec2-user/.local/share/ramalama/store/ollama/llama3/llama3/blobs/sha256-6a0746a1ec1aef3e7ec53868f220ff6e389f6f8ef87a01d77c96807de94ca2aa,destination=/mnt/models/model.file,ro --mount=type=bind,src=/home/ec2-user/.local/share/ramalama/store/ollama/llama3/llama3/snapshots/sha256-6a0746a1ec1aef3e7ec53868f220ff6e389f6f8ef87a01d77c96807de94ca2aa/chat_template_converted,destination=/mnt/models/chat_template.file,ro quay.io/ramalama/cuda:0.8 llama-bench -ngl 999 --threads 96 -m /mnt/models/model.file -n 3 -o json -oe md 2> err > out
+
+podman run \
+--rm \
+--device /dev/dri \
+--device nvidia.com/gpu=all \
+-e CUDA_VISIBLE_DEVICES=0 \
+--runtime /usr/bin/nvidia-container-runtime \
+--security-opt=label=disable \
+-t 
+-i 
+--name ramalama_bench \
+--env=HOME=/tmp \
+--init \
+--mount=type=bind,src=/home/ec2-user/.local/share/ramalama/store/ollama/llama3/llama3/blobs/sha256-6a0746a1ec1aef3e7ec53868f220ff6e389f6f8ef87a01d77c96807de94ca2aa,destination=/mnt/models/model.file,ro \
+--mount=type=bind,src=/home/ec2-user/.local/share/ramalama/store/ollama/llama3/llama3/snapshots/sha256-6a0746a1ec1aef3e7ec53868f220ff6e389f6f8ef87a01d77c96807de94ca2aa/chat_template_converted,destination=/mnt/models/chat_template.file,ro \
+quay.io/ramalama/cuda:0.8 \
+llama-bench -ngl 999 --threads 96 -m /mnt/models/model.file -n 3 -o json -oe md 2> err > out
+
+model=llama3:8b
+blob_path=$(ramalama inspect --json ${model} | jq -r .Path)
+snapshot_path=$(echo ${blob_path} | sed -e 's/blobs/snapshots/')
+podman run --rm --device /dev/dri --device nvidia.com/gpu=all -e CUDA_VISIBLE_DEVICES=0 --runtime /usr/bin/nvidia-container-runtime --security-opt=label=disable -t -i --name ramalama_bench --env=HOME=/tmp --init --mount=type=bind,src=${blob_path},destination=/mnt/models/model.file,ro --mount=type=bind,src=${snapshot_path}/chat_template_converted,destination=/mnt/models/chat_template.file,ro quay.io/ramalama/cuda:0.8 llama-bench -ngl 999 --threads 96 -m /mnt/models/model.file -n 3 -o json -oe md 2> err > out
+
+cat out | sed -e 's/^ *}//' | grep -Ev '^ *(\[|\]|[,"{}])'
+cat out | sed -E -e 's/(^ *}).*/\1/' | grep -E '^ *(\[|\]|[,"{}])' | jq .
+```
