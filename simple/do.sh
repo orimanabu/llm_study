@@ -119,7 +119,9 @@ pull)
 	done
 	;;
 serve-cpu)
-	ramalama serve --threads 16 --port 8080 --name myllm llama3
+	#ramalama serve --threads 16 --port 8080 --name myllm llama3
+	#ramalama serve --runtime-args "--threads 16" --port 8080 --name myllm llama3:8b
+	ramalama serve --runtime-args "--threads 16" --port 8080 --name myllm qwen3:4b
 	;;
 serve-mac-host)
 	ramalama serve --nocontainer --port 8080 llama3
