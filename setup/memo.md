@@ -1,3 +1,28 @@
+## lvm
+
+```sh
+#!/bin/bash
+
+for i in $(seq 2 8); do
+	echo "=> ${i}"
+	dev=/dev/nvme${i}n1
+	echo "=> pvcreate"
+	sudo pvcreate ${dev}
+done
+
+alldevs=""
+for i in $(seq 2 8); do
+	alldevs="${alldevs} /dev/nvme${i}n1"
+done
+sudo vgcreate datavg ${alldevs}
+
+sudo lvcreate -l 100%FREE -n datalv datavg
+sudo mkfs.xfs -L DATA /dev/datavg/datalv
+
+mkdir -p ${HOME}/.local
+sudo mount -L DATA ${HOME}/.local
+```
+
 ## disk partitioning
 
 ``` shell
@@ -41,7 +66,7 @@ sudo btrfs device add /dev/nvme1n1 /home
 
 ``` shell
 sudo dnf update -y
-sudo dnf install -y pciutils vim-enhanced git kernel-devel gcc make podman vulkan-loader cmake
+sudo dnf install -y pciutils vim-enhanced git kernel-devel gcc make podman vulkan-loader cmake lvm2 tmux
 ```
 
 ``` shell
